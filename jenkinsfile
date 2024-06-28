@@ -12,5 +12,10 @@ pipeline {
                 git branch: "${GIT_BRANCH}", url: "${GIT_REPO_URL}"
             }
         }
+        stage('Build Package') {
+            steps {
+                sh 'mvn clean install'
+            }
+        }
     }
 }
