@@ -1,0 +1,47 @@
+pipeline {
+    agent any
+    
+    environment {
+        AWS_DEFAULT_REGION = 'us-east-1'
+        S3_BUCKET = 'your-s3-bucket-name'
+    }
+    
+    stages {
+        stage('Checkout') {
+            steps {
+                // Checkout code from Git repository
+                url: 'git@github.com:username/repo.git'
+            }
+        }
+        
+        stage('Build') {
+            steps {
+                // Build Java project using Maven
+                sh 'mvn clean package'
+                
+                // Assuming the JAR file is generated in target directory
+                archiveArtifacts artifacts: 'target/*.jar', allowEmptyArchive: true
+            }
+        }
+        
+        stage('Upload to S3') {
+            steps {
+                // Upload JAR file to S3 bucket using AWS CLI
+                script {
+                    def fileName = sh(returnStdout: true, script: "ls target/*.jar").trim()
+                    sh "aws s3 cp ${fileName} s3://${S3_BUCKET}/"
+                }
+            }
+        }
+    }
+    
+    post {
+        success {
+            echo 'Pipeline successfully completed!'
+        }
+        failure {
+            echo 'Pipeline failed!'
+        }
+    }
+}
+
