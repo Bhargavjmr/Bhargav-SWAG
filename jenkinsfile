@@ -4,6 +4,7 @@ pipeline {
     environment {
         GIT_REPO_URL = 'https://github.com/Bhargavjmr/Bhargav-SWAG.git'
         GIT_BRANCH = 'main'
+        DEPLOY_DIR = '/var/lib/jenkins/workspace/Test-Swag/target' // Set this to the desired deploy directory
     }
 
     stages {
@@ -15,6 +16,17 @@ pipeline {
         stage('Build Package') {
             steps {
                 sh 'mvn clean install'
+            }
+        }
+        stage('Deploy JAR') {
+            steps {
+                sh """
+                    # Navigate to the deploy directory
+                    cd ${DEPLOY_DIR}
+                    
+                    # Find the JAR file and run it
+                    java -jar *.jar
+                """
             }
         }
     }
